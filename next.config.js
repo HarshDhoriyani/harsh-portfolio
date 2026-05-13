@@ -5,6 +5,14 @@ const nextConfig = {
     "@react-three/drei",
     "three"
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.simpleicons.org",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

@@ -1,24 +1,145 @@
 @import "tailwindcss";
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   background-color: #0A0F0F;
-  color: #E0E4E4;
+  color: #D4DCDC;
   overflow-x: hidden;
+  cursor: none;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #1A1F1F;
-}
-::-webkit-scrollbar-thumb {
+a, button { cursor: none; }
+
+/* ── Custom Cursor ────────────────────────────── */
+#cursor-dot {
+  position: fixed;
+  width: 8px;
+  height: 8px;
   background: #00F0FF;
-  border-radius: 8px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px #00F0FF, 0 0 18px rgba(0, 240, 255, 0.4);
+  transition: background 0.2s, transform 0.1s;
+}
+
+#cursor-ring {
+  position: fixed;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(0, 240, 255, 0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s, height 0.2s, border-color 0.2s;
+}
+
+body:has(a:hover) #cursor-dot,
+body:has(button:hover) #cursor-dot {
+  background: #FF2D78;
+  box-shadow: 0 0 8px #FF2D78, 0 0 18px rgba(255, 45, 120, 0.4);
+}
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring {
+  width: 44px;
+  height: 44px;
+  border-color: rgba(255, 45, 120, 0.5);
+}
+
+/* ── Scrollbar ─────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #0D1515; }
+::-webkit-scrollbar-thumb { background: #00F0FF; border-radius: 4px; }
+
+/* ── Selection ─────────────────────────────────── */
+::selection { background: rgba(0, 240, 255, 0.2); color: #00F0FF; }
+
+/* ── Glitch ────────────────────────────────────── */
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.glitch::before {
+  color: #FF2D78;
+  animation: glitch-before 5s infinite;
+  clip-path: polygon(0 30%, 100% 30%, 100% 55%, 0 55%);
+}
+.glitch::after {
+  color: #00F0FF;
+  animation: glitch-after 5s infinite;
+  clip-path: polygon(0 65%, 100% 65%, 100% 85%, 0 85%);
+  animation-delay: 0.08s;
+}
+@keyframes glitch-before {
+  0%, 87%, 100% { transform: translate(0); opacity: 0; }
+  88% { transform: translate(-4px, 1px); opacity: 0.85; }
+  90% { transform: translate(4px, -1px); opacity: 0.85; }
+  92% { transform: translate(0); opacity: 0; }
+}
+@keyframes glitch-after {
+  0%, 89%, 100% { transform: translate(0); opacity: 0; }
+  90% { transform: translate(4px, 2px); opacity: 0.85; }
+  92% { transform: translate(-4px, -2px); opacity: 0.85; }
+  94% { transform: translate(0); opacity: 0; }
+}
+
+/* ── Grid Pattern ──────────────────────────────── */
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* ── Section helpers ───────────────────────────── */
+.section-divider {
+  width: 48px;
+  height: 2px;
+  background: linear-gradient(90deg, #00F0FF, transparent);
+  margin: 10px 0 36px;
+}
+
+/* ── Typewriter blink ──────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.cursor-blink { animation: blink 1s step-end infinite; }
+
+/* ── Fade-up ───────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.7s ease-out forwards; }
+
+/* ── Float ─────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+.floating { animation: float 4s ease-in-out infinite; }
+
+/* ── Scroll progress ───────────────────────────── */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #00F0FF, #FF2D78);
+  z-index: 1000;
+  transition: width 0.1s linear;
 }

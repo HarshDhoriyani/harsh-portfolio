@@ -5,12 +5,15 @@ module.exports = {
     extend: {
       colors: {
         charcoal: "#0A0F0F",
-        slate: "#2A2D34",
+        slate: "#111A1A",
+        slate2: "#1A2525",
         cyan: "#00F0FF",
-        grayText: "#A0AAB0",
+        magenta: "#FF2D78",
+        grayText: "#8A9A9A",
       },
       fontFamily: {
-        sans: ["Inter", "Roboto", "sans-serif"],
+        sans: ["var(--font-syne)", "sans-serif"],
+        mono: ["var(--font-mono)", "monospace"],
       },
     },
   },
