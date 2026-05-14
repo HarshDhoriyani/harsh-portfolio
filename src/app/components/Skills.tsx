@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { skills, categories } from "@/src/data/skills";
 
@@ -10,12 +10,6 @@ export default function Skills() {
   const filtered =
     active === "All" ? skills : skills.filter((s) => s.category === active);
 
-  // Group skills by category for visualization
-  const skillsByCategory = categories.reduce((acc, cat) => {
-    acc[cat] = skills.filter((s) => s.category === cat);
-    return acc;
-  }, {} as Record<string, typeof skills>);
-
   return (
     <div>
       <p className="font-mono text-cyan text-xs tracking-[0.3em] mb-2 opacity-70">
@@ -24,150 +18,113 @@ export default function Skills() {
       <h2 className="text-4xl md:text-5xl font-bold text-white">Tech Stack</h2>
       <div className="section-divider" />
 
-      {/* Category Pills - Horizontal Scroll on Mobile */}
-      <div className="flex flex-wrap gap-3 mb-12 justify-center md:justify-start">
-        <motion.button
-          onClick={() => setActive("All")}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.98 }}
-          className={`font-mono text-sm tracking-wider px-6 py-2.5 rounded-full border transition-all duration-300 relative group
-            ${
-              active === "All"
-                ? "bg-gradient-to-r from-cyan to-cyan/70 text-charcoal border-cyan shadow-[0_0_20px_rgba(0,240,255,0.3)]"
-                : "border-cyan/30 text-grayText hover:border-cyan hover:text-white"
-            }`}
-        >
-          All
-          <span className={`ml-2 text-xs font-mono ${
-            active === "All" ? "text-charcoal/70" : "text-cyan/60"
-          }`}>
-            {skills.length}
-          </span>
-        </motion.button>
+      {/* ── Filter tabs (horizontal scroll on mobile) ── */}
+      <div className="flex gap-2 overflow-x-auto pb-3 mb-3 scrollbar-hide">
         {categories.map((cat) => (
-          <motion.button
+          <button
             key={cat}
             onClick={() => setActive(cat)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-            className={`font-mono text-sm tracking-wider px-6 py-2.5 rounded-full border transition-all duration-300 relative group
+            className={`whitespace-nowrap shrink-0 font-mono text-xs tracking-wider
+              px-5 py-2.5 rounded-full border transition-all duration-200
               ${
                 active === cat
-                  ? "bg-gradient-to-r from-cyan to-cyan/70 text-charcoal border-cyan shadow-[0_0_20px_rgba(0,240,255,0.3)]"
-                  : "border-cyan/30 text-grayText hover:border-cyan hover:text-white"
+                  ? "bg-cyan text-charcoal border-cyan font-bold"
+                  : "border-cyan/20 text-grayText hover:border-cyan/50 hover:text-white"
               }`}
           >
             {cat}
-            <span className={`ml-2 text-xs font-mono ${
-              active === cat ? "text-charcoal/70" : "text-cyan/60"
-            }`}>
-              {skillsByCategory[cat].length}
-            </span>
-          </motion.button>
+          </button>
         ))}
       </div>
 
-      {/* Skills Display - Category View */}
-      {active === "All" ? (
-        <div className="space-y-12">
-          {categories.map((category) => (
-            <motion.div
-              key={category}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className=""
-            >
-              <h3 className="text-xl font-bold text-cyan mb-5 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full" style={{ background: skillsByCategory[category][0]?.color || "#00F0FF" }} />
-                {category}
-              </h3>
-              <motion.div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                {skillsByCategory[category].map((skill, idx) => (
-                  <motion.div
-                    key={skill.name}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: idx * 0.05 }}
-                    viewport={{ once: true }}
-                    className="group relative"
-                  >
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-lg transition-all duration-300
-                      hover:bg-gradient-to-b hover:from-slate/40 hover:to-transparent">
-                      <motion.div
-                        whileHover={{ scale: 1.15, rotate: 5 }}
-                        className="w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300"
-                        style={{
-                          background: `linear-gradient(135deg, ${skill.color}20, ${skill.color}08)`,
-                          border: `2px solid ${skill.color}40`,
-                        }}
-                      >
-                        <Image
-                          src={skill.icon}
-                          alt={skill.name}
-                          width={32}
-                          height={32}
-                          unoptimized
-                          className="object-contain"
-                        />
-                      </motion.div>
-                      <div className="text-center">
-                        <p className="font-semibold text-white text-sm">{skill.name}</p>
-                        <p className="text-xs text-grayText opacity-70 mt-1 max-w-xs line-clamp-2">{skill.desc}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </motion.div>
-          ))}
-        </div>
-      ) : (
-        /* Single Category View */
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-        >
-          {filtered.map((skill, idx) => (
+      {/* Count */}
+      <p className="font-mono text-xs text-grayText mb-8">
+        Showing{" "}
+        <span className="text-cyan font-bold">{filtered.length}</span>{" "}
+        technologies
+      </p>
+
+      {/* ── Grid ──────────────────────────────────────── */}
+      <motion.div
+        layout
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"
+      >
+        <AnimatePresence mode="popLayout">
+          {filtered.map((skill, i) => (
             <motion.div
               key={skill.name}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: idx * 0.05 }}
-              className="group relative"
+              layout
+              initial={{ opacity: 0, y: 24, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.85 }}
+              transition={{ duration: 0.22, delay: Math.min(i * 0.04, 0.4) }}
+              className="group relative overflow-hidden bg-slate/50 backdrop-blur-sm
+                border border-white/5 rounded-2xl p-5
+                hover:border-cyan/30 hover:-translate-y-1
+                hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)]
+                transition-all duration-300 cursor-default"
             >
-              <div className="flex flex-col items-center gap-3 p-4 rounded-lg transition-all duration-300
-                hover:bg-gradient-to-b hover:from-slate/40 hover:to-transparent">
-                <motion.div
-                  whileHover={{ scale: 1.15, rotate: 5 }}
-                  className="w-16 h-16 rounded-xl flex items-center justify-center transition-all duration-300"
+              {/* Brand glow behind logo */}
+              <div
+                className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full
+                  blur-2xl opacity-0 group-hover:opacity-60 transition-opacity duration-500"
+                style={{ background: skill.color }}
+              />
+
+              {/* Content */}
+              <div className="relative z-10 flex flex-col items-center text-center gap-3">
+
+                {/* Logo */}
+                <div
+                  className="w-14 h-14 rounded-xl flex items-center justify-center
+                    transition-transform duration-300 group-hover:scale-110"
                   style={{
-                    background: `linear-gradient(135deg, ${skill.color}25, ${skill.color}05)`,
-                    border: `2px solid ${skill.color}50`,
+                    background: `${skill.color}18`,
+                    border: `1px solid ${skill.color}35`,
                   }}
                 >
                   <Image
                     src={skill.icon}
                     alt={skill.name}
-                    width={40}
-                    height={40}
+                    width={32}
+                    height={32}
                     unoptimized
                     className="object-contain"
                   />
-                </motion.div>
-                <div className="text-center">
-                  <p className="font-semibold text-white text-sm">{skill.name}</p>
-                  <p className="text-xs text-grayText opacity-70 mt-2 max-w-xs line-clamp-2">{skill.desc}</p>
+                </div>
+
+                {/* Name */}
+                <p className="font-bold text-white text-sm leading-tight">{skill.name}</p>
+
+                {/* Category */}
+                <p
+                  className="font-mono text-[10px] tracking-wider"
+                  style={{ color: skill.color, opacity: 0.8 }}
+                >
+                  {skill.category}
+                </p>
+
+                {/* Description — slides in on hover */}
+                <div
+                  className="max-h-0 group-hover:max-h-20 overflow-hidden
+                    transition-all duration-300"
+                >
+                  <p
+                    className="text-grayText text-[11px] leading-relaxed text-center
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-200 delay-100
+                      pt-2 border-t border-white/8"
+                  >
+                    {skill.desc}
+                  </p>
                 </div>
               </div>
             </motion.div>
           ))}
-        </motion.div>
-      )}
+        </AnimatePresence>
+      </motion.div>
 
-      <p className="text-center font-mono text-xs text-grayText mt-10 opacity-50">
-        ✦ Click category pills to filter or view all skills by category
+      <p className="text-center font-mono text-xs text-grayText mt-8 opacity-40 tracking-widest">
+        HOVER ANY CARD FOR DETAILS
       </p>
     </div>
   );
